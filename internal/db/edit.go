@@ -18,7 +18,8 @@ func Create(path string) {
 		"IMAGE"		TEXT,
 		"COLOR"		TEXT,
 		"WEIGHT"	INTEGER,
-		"REPS"		INTEGER
+		"REPS"		INTEGER,
+		"INTENSITY" INTEGER
 	);`
 	exec(path, sqlStatement)
 
@@ -28,7 +29,8 @@ func Create(path string) {
 		"NAME"		TEXT,
 		"COLOR"		TEXT,
 		"WEIGHT"	INTEGER,
-		"REPS"		INTEGER
+		"REPS"		INTEGER,
+		"INTENSITY" INTEGER
 	);`
 	exec(path, sqlStatement)
 
@@ -43,14 +45,14 @@ func Create(path string) {
 // InsertEx - insert one exercise into DB
 func InsertEx(path string, ex models.Exercise) {
 
-	sqlStatement := `INSERT INTO exercises (GR, PLACE, NAME, DESCR, IMAGE, COLOR, WEIGHT, REPS) 
-	VALUES ('%s','%s','%s','%s','%s','%s','%v','%d');`
+	sqlStatement := `INSERT INTO exercises (GR, PLACE, NAME, DESCR, IMAGE, COLOR, WEIGHT, REPS, INTENSITY)
+	VALUES ('%s','%s','%s','%s','%s','%s','%v','%d','%d');`
 
 	ex.Group = quoteStr(ex.Group)
 	ex.Name = quoteStr(ex.Name)
 	ex.Descr = quoteStr(ex.Descr)
 
-	sqlStatement = fmt.Sprintf(sqlStatement, ex.Group, ex.Place, ex.Name, ex.Descr, ex.Image, ex.Color, ex.Weight, ex.Reps)
+	sqlStatement = fmt.Sprintf(sqlStatement, ex.Group, ex.Place, ex.Name, ex.Descr, ex.Image, ex.Color, ex.Weight, ex.Reps, ex.Intensity)
 
 	exec(path, sqlStatement)
 }
@@ -58,12 +60,12 @@ func InsertEx(path string, ex models.Exercise) {
 // InsertSet - insert one set into DB
 func InsertSet(path string, ex models.Set) {
 
-	sqlStatement := `INSERT INTO sets (DATE, NAME, COLOR, WEIGHT, REPS) 
-	VALUES ('%s','%s','%s','%v','%d');`
+	sqlStatement := `INSERT INTO sets (DATE, NAME, COLOR, WEIGHT, REPS, INTENSITY)
+	VALUES ('%s','%s','%s','%v','%d','%d');`
 
 	ex.Name = quoteStr(ex.Name)
 
-	sqlStatement = fmt.Sprintf(sqlStatement, ex.Date, ex.Name, ex.Color, ex.Weight, ex.Reps)
+	sqlStatement = fmt.Sprintf(sqlStatement, ex.Date, ex.Name, ex.Color, ex.Weight, ex.Reps, ex.Intensity)
 
 	exec(path, sqlStatement)
 }
@@ -71,7 +73,7 @@ func InsertSet(path string, ex models.Set) {
 // InsertW - insert weight
 func InsertW(path string, ex models.BodyWeight) {
 
-	sqlStatement := `INSERT INTO weight (DATE, WEIGHT) 
+	sqlStatement := `INSERT INTO weight (DATE, WEIGHT)
 	VALUES ('%s','%v');`
 
 	sqlStatement = fmt.Sprintf(sqlStatement, ex.Date, ex.Weight)

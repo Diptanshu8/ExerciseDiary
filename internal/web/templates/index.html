@@ -109,6 +109,7 @@
           <p>Description: {{ .Descr }}</p>
           <p>Weight (default): {{ .Weight }}</p>
           <p>Reps (default): {{ .Reps }}</p>
+          <p>Intensity (default): {{ .Intensity }}</p>
         </div>
         <div class="col">
           <img src="{{ .Image }}" style="max-width: 100%;max-height: 100%;" alt="Exercise Image"></img>
@@ -118,8 +119,8 @@
   </div>
 </div>
 <!-- End Modal -->
-                            <button class="btn exercise-button" onclick='addExercise("{{ .Name }}", "{{ .Weight }}", "{{ .Reps }}")' title="Weight: {{ .Weight }}; Reps: {{ .Reps }};">{{ .Name }}</button>
-                            <button class="btn add-exercise-button" onclick='addExercise("{{ .Name }}", "{{ .Weight }}", "{{ .Reps }}")' title="Add">
+							<button class="btn exercise-button" onclick='addExercise("{{ .Name }}", "{{ .Weight }}", "{{ .Reps }}", "{{ .Intensity }}")' title="Weight: {{ .Weight }}; Reps: {{ .Reps }}; Intensity: {{ .Intensity }}">{{ .Name }}</button>
+							<button class="btn add-exercise-button" onclick='addExercise("{{ .Name }}", "{{ .Weight }}", "{{ .Reps }}", "{{ .Intensity }}")' title="Add">
                                 <i class="bi bi-arrow-right-square"></i>
                             </button>
                         </div>
@@ -135,7 +136,7 @@
                       </div>
                     </div>
                   </div>
-                {{ end }}              
+                {{ end }}
               </div>
         </div>
         <div class="col-md mb-4">
@@ -162,8 +163,9 @@
                     <table class="table table-borderless">
                       <thead>
                           <th class="col-5">Name</th>
-                          <th class="col-3">Weight</th>
-                          <th class="col-3">Reps</th>
+                          <th class="col-2">Weight</th>
+                          <th class="col-2">Reps</th>
+                          <th class="col-2">Intensity</th>
                           <th class="col-1"></th>
                       </thead>
                       <tbody id="todayEx"></tbody>

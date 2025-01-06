@@ -1,7 +1,7 @@
 package web
 
 import (
-	// "log"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -52,12 +52,14 @@ func saveExerciseHandler(c *gin.Context) {
 	id := c.PostForm("id")
 	weight := c.PostForm("weight")
 	reps := c.PostForm("reps")
+	intensity := c.PostForm("intensity")
 
 	oneEx.ID, _ = strconv.Atoi(id)
 	oneEx.Weight, _ = decimal.NewFromString(weight)
 	oneEx.Reps, _ = strconv.Atoi(reps)
+	oneEx.Intensity, _ = strconv.Atoi(intensity)
 
-	// log.Println("ONEEX =", oneEx)
+	log.Println("ONEEX =", oneEx)
 
 	if oneEx.ID != 0 {
 		db.DeleteEx(appConfig.DBPath, oneEx.ID)

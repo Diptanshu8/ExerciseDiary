@@ -33,6 +33,7 @@ type Exercise struct {
 	Color  string          `db:"COLOR"`
 	Weight decimal.Decimal `db:"WEIGHT"`
 	Reps   int             `db:"REPS"`
+	Intensity   int        `db:"INTENSITY"`
 }
 
 // Set - one set
@@ -43,6 +44,7 @@ type Set struct {
 	Color  string          `db:"COLOR"`
 	Weight decimal.Decimal `db:"WEIGHT"`
 	Reps   int             `db:"REPS"`
+	Intensity   int        `db:"INTENSITY"`
 }
 
 // AllExData - all sets and exercises

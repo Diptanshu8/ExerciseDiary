@@ -1,7 +1,7 @@
 var id = 0;
 var today = null;
 
-function addExercise(name, weight, reps) {
+function addExercise(name, weight, reps, intensity) {
     // console.log('NAME =', name);
 
     id = id + 1;
@@ -12,6 +12,8 @@ function addExercise(name, weight, reps) {
         <input name="weight" type="number" step="any" min="0" class="form-control" value="${weight}">
     </td><td>
         <input name="reps" type="number" min="0" class="form-control" value="${reps}">
+    </td><td>
+        <input name="intensity" type="number" min="0" class="form-control" value="${intensity}">
     </td><td>
         <button class="btn del-set-button" type="button" title="Delete" onclick="delExercise(${id})">
             <i class="bi bi-x-square"></i>
@@ -31,7 +33,7 @@ function setFormContent(sets, date) {
         let len = sets.length;
         for (let i = 0 ; i < len; i++) {
             if (sets[i].Date == date) {
-                addExercise(sets[i].Name, sets[i].Weight, sets[i].Reps);
+                addExercise(sets[i].Name, sets[i].Weight, sets[i].Reps, sets[i].Intensity);
             }
         }
     }
@@ -85,7 +87,7 @@ function addAllGroup(exs, gr) {
         let len = exs.length;
         for (let i = 0 ; i < len; i++) {
             if (exs[i].Group == gr) {
-                addExercise(exs[i].Name, exs[i].Weight, exs[i].Reps);
+                addExercise(exs[i].Name, exs[i].Weight, exs[i].Reps, exs[i].Intensity);
             }
         }
     }

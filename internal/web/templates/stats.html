@@ -24,6 +24,7 @@
                                 <th class="col-1"></th>
                                 <th class="col-4">Date</th>
                                 <th class="col-3">Reps</th>
+                                <th class="col-3">Intensity</th>
                                 <th class="col-3">Weight</th>
                             </thead>
                             <tbody id="stats-table">
@@ -45,6 +46,12 @@
                     </div>
                 </div>
                 <div class="card border-primary mb-4">
+                    <div class="card-header">Intensity</div>
+                    <div class="card-body">
+                        <canvas id="stats-intensity" style="max-height: 200px;"></canvas>
+                    </div>
+                </div>
+                <div class="card border-primary mb-4">
                     <div class="card-header">Weight</div>
                     <div class="card-body">
                         <canvas id="stats-weight" style="max-height: 200px;"></canvas>
@@ -53,7 +60,7 @@
             </div>
         </div>
     </div>
-        
+
 <script>
    setStatsPage({{ .ExData.Sets }}, {{ .Config.HeatColor }}, 0, {{ .Config.PageStep }});
 </script>
