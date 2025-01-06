@@ -26,7 +26,7 @@ function makeChart(heat, hcolor, sets) {
                 data: ldata,
                 backgroundColor(context) {
                     const value = context.dataset.data[context.dataIndex].v;
-                    const alpha = value / 7;
+                    const alpha = value / 10;
                     return Chart.helpers.color(hcolor).alpha(alpha).rgbString();
                 },
                 borderColor(context) {
@@ -50,7 +50,7 @@ function makeChart(heat, hcolor, sets) {
                 const res = window.myMatrix.getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
                 let clickDate = res[0].element.$context.raw.d;
                 // console.log('CLICK DATE =', clickDate);
-                
+
                 setFormContent(sets, clickDate); // index.js
             },
             plugins: {
@@ -100,4 +100,4 @@ function makeChart(heat, hcolor, sets) {
             }
         }
     });
-};    
+};

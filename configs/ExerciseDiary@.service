@@ -5,8 +5,7 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-User=%i
-ExecStart=/usr/bin/exercisediary -d /home/%i/.config/ExerciseDiary/
+ExecStart=/home/pi/workplace/exercisedaily_dev/ExerciseDiary/ExerciseDiary /home/pi/workplace/exercisedaily_dev/ExerciseDiary/exercise_data
 Restart=on-failure
 
 [Install]
