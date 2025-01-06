@@ -1,7 +1,7 @@
 package web
 
 import (
-//	"log"
+	// "log"
 	"strconv"
 	"time"
 
@@ -49,17 +49,9 @@ func weekStartDate(date time.Time) time.Time {
 func countHeat() map[string]int {
 	countMap := make(map[string]int)
 
-	// This loop calculates how many workouts are logged for a day.
-	// if #workouts > 1, then it adds all the workouts.
-	// Thus more workouts logged, darker would be the colour on heatmap
-	// Todo: Fix to add weightage of 5 workouts for every cult class
 	for _, ex := range exData.Sets {
-		reps, exists := countMap[ex.Date]
-		if exists {
-			countMap[ex.Date] = reps + 1
-		} else {
-			countMap[ex.Date] = 1
-		}
+		// Default intensity is 0, hence add 1 for basic heatmap
+		countMap[ex.Date] += ex.Intensity + 1
 	}
 
 	return countMap
