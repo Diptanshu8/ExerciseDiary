@@ -28,6 +28,7 @@ func Create(path string) {
 		"DATE"		TEXT,
 		"NAME"		TEXT,
 		"COLOR"		TEXT,
+		"WORKOUT_COLOR"	TEXT,
 		"WEIGHT"	INTEGER,
 		"REPS"		INTEGER,
 		"INTENSITY" INTEGER
@@ -60,12 +61,12 @@ func InsertEx(path string, ex models.Exercise) {
 // InsertSet - insert one set into DB
 func InsertSet(path string, ex models.Set) {
 
-	sqlStatement := `INSERT INTO sets (DATE, NAME, COLOR, WEIGHT, REPS, INTENSITY)
-	VALUES ('%s','%s','%s','%v','%d','%d');`
+	sqlStatement := `INSERT INTO sets (DATE, NAME, COLOR, WORKOUT_COLOR, WEIGHT, REPS, INTENSITY)
+	VALUES ('%s','%s','%s','%s','%v','%d','%d');`
 
 	ex.Name = quoteStr(ex.Name)
 
-	sqlStatement = fmt.Sprintf(sqlStatement, ex.Date, ex.Name, ex.Color, ex.Weight, ex.Reps, ex.Intensity)
+	sqlStatement = fmt.Sprintf(sqlStatement, ex.Date, ex.Name, ex.Color, ex.WorkoutColor, ex.Weight, ex.Reps, ex.Intensity)
 
 	exec(path, sqlStatement)
 }

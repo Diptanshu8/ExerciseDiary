@@ -48,6 +48,7 @@ func saveExerciseHandler(c *gin.Context) {
 	oneEx.Name = c.PostForm("name")
 	oneEx.Descr = c.PostForm("descr")
 	oneEx.Image = c.PostForm("image")
+	oneEx.Color = c.PostForm("color")
 
 	id := c.PostForm("id")
 	weight := c.PostForm("weight")

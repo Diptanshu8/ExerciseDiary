@@ -1,9 +1,7 @@
 var id = 0;
 var today = null;
 
-function addExercise(name, weight, reps, intensity) {
-    // console.log('NAME =', name);
-
+function addExercise(name, weight, reps, intensity, color) {
     id = id + 1;
     html_to_insert=`<tr id="${id}">
     <td>
@@ -14,6 +12,8 @@ function addExercise(name, weight, reps, intensity) {
         <input name="reps" type="number" min="0" class="form-control" value="${reps}">
     </td><td>
         <input name="intensity" type="number" min="0" class="form-control" value="${intensity}">
+    </td><td>
+        <input name="workout_color" type="color" class="form-control form-control-color" value="${color || '#03a70c'}">
     </td><td>
         <button class="btn del-set-button" type="button" title="Delete" onclick="delExercise(${id})">
             <i class="bi bi-x-square"></i>
@@ -33,23 +33,30 @@ function setFormContent(sets, date) {
         let len = sets.length;
         for (let i = 0 ; i < len; i++) {
             if (sets[i].Date == date) {
-                addExercise(sets[i].Name, sets[i].Weight, sets[i].Reps, sets[i].Intensity);
+                addExercise(sets[i].Name, sets[i].Weight, sets[i].Reps, sets[i].Intensity, sets[i].WorkoutColor);
             }
         }
     }
 };
 
 function setFormDate(sets) {
-    today = document.getElementById("realDate").value;
-    if (!today) {
-        today = window.sessionStorage.getItem("today");
+    let date = new Date().toISOString().split('T')[0];
+    if (today) {
+        date = today;
+    }
+    window.sessionStorage.setItem("today", date);
+    document.getElementById('todayEx').innerHTML = "";
+    document.getElementById("formDate").value = date;
+    document.getElementById("realDate").value = date;
 
-        if (!today) {
-            today = new Date().toJSON().slice(0, 10);
+    if (sets) {
+        let len = sets.length;
+        for (let i = 0 ; i < len; i++) {
+            if (sets[i].Date == date) {
+                addExercise(sets[i].Name, sets[i].Weight, sets[i].Reps, sets[i].Intensity, sets[i].WorkoutColor);
+            }
         }
     }
-
-    setFormContent(sets, today);
 };
 
 function setWeightDate() {
@@ -58,7 +65,6 @@ function setWeightDate() {
 };
 
 function delExercise(exID) {
-
     document.getElementById(exID).remove();
 };
 
@@ -73,16 +79,10 @@ function moveDayLeftRight(where, sets) {
     date.setDate(date.getDate() + parseInt(where));
     let left = date.toLocaleDateString('en-CA');
 
-    // console.log('LEFT =', left);
-
     setFormContent(sets, left);
 };
 
 function addAllGroup(exs, gr) {
-
-    // console.log('GR =', gr);
-    // console.log('SETS =', exs);
-
     if (exs) {
         let len = exs.length;
         for (let i = 0 ; i < len; i++) {

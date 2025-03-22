@@ -8,7 +8,15 @@ import (
 	"github.com/aceberg/ExerciseDiary/internal/models"
 )
 
-func generateHeatMap() (heatMap []models.HeatMapData) {
+// HeatMapResult contains both intensity and color heatmaps
+type HeatMapResult struct {
+	IntensityMap []models.HeatMapData
+	ColorMap     []models.HeatMapData
+}
+
+func generateHeatMap() HeatMapResult {
+	var intensityMap []models.HeatMapData
+	var colorMap []models.HeatMapData
 	var heat models.HeatMapData
 
 	w := 52 // weeks to show
@@ -18,26 +26,39 @@ func generateHeatMap() (heatMap []models.HeatMapData) {
 
 	startDate := weekStartDate(min)
 	countMap := countHeat()
+	workoutColors := getColorMap()
 
 	dow := []string{"Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"}
 
 	for _, day := range dow {
-
 		heat.Y = day
 
 		for i := 0; i < w+1; i++ {
-
 			heat.X = strconv.Itoa(i)
 			heat.D = startDate.AddDate(0, 0, 7*i).Format("2006-01-02")
+
+			// Add to intensity map
 			heat.V = countMap[heat.D]
-	//		log.Printf("Day: %s, Week: %d, Date: %s, Intensity: %d\n", day, i, heat.D, heat.V)
-			heatMap = append(heatMap, heat)
+			intensityMap = append(intensityMap, heat)
+
+			// Add to color map with the actual workout color
+			if color, exists := workoutColors[heat.D]; exists {
+				heat.V = 1
+				heat.Color = color
+				colorMap = append(colorMap, heat)
+			} else {
+				// Skip days without workouts in the color map
+				continue
+			}
 		}
 
 		startDate = startDate.AddDate(0, 0, 1)
 	}
 
-	return heatMap
+	return HeatMapResult{
+		IntensityMap: intensityMap,
+		ColorMap:     colorMap,
+	}
 }
 
 func weekStartDate(date time.Time) time.Time {
@@ -55,4 +76,16 @@ func countHeat() map[string]int {
 	}
 
 	return countMap
+}
+
+func getColorMap() map[string]string {
+	colorMap := make(map[string]string)
+
+	for _, set := range exData.Sets {
+		if set.WorkoutColor != "" {
+			colorMap[set.Date] = set.WorkoutColor
+		}
+	}
+
+	return colorMap
 }

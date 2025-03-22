@@ -1,4 +1,3 @@
-
 function lowerData(heat) {
     var ldata = [];
     let arrayLength = heat.length;
@@ -8,21 +7,22 @@ function lowerData(heat) {
             x: val.X,
             y: val.Y,
             d: val.D,
-            v: val.V
+            v: val.V,
+            Color: val.Color
         });
     }
     // console.log('LDATA =', ldata);
     return ldata;
 };
 
-function makeChart(heat, hcolor, sets) {
+function makeIntensityChart(heat, hcolor, sets) {
     let ldata = lowerData(heat);
-    var ctx = document.getElementById('matrix-chart').getContext('2d');
-    window.myMatrix = new Chart(ctx, {
+    var ctx = document.getElementById('intensity-chart').getContext('2d');
+    window.intensityChart = new Chart(ctx, {
         type: 'matrix',
         data: {
             datasets: [{
-                label: 'Heatmap',
+                label: 'Intensity Heatmap',
                 data: ldata,
                 backgroundColor(context) {
                     const value = context.dataset.data[context.dataIndex].v;
@@ -34,70 +34,88 @@ function makeChart(heat, hcolor, sets) {
                     const alpha = 0.5;
                     return Chart.helpers.color('grey').alpha(alpha).rgbString();
                 },
-                borderWidth: 1,
-                hoverBackgroundColor: 'lightgrey',
-                hoverBorderColor: 'grey',
-                width() {
-                    return 12;
-                },
-                height() {
-                    return 12;
-                }
+                width: ({ chart }) => (chart.chartArea || {}).width / 52 - 1,
+                height: ({ chart }) => (chart.chartArea || {}).height / 7 - 1
             }]
         },
         options: {
-            onClick: (e) => {
-                const res = window.myMatrix.getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
-                let clickDate = res[0].element.$context.raw.d;
-                // console.log('CLICK DATE =', clickDate);
-
-                setFormContent(sets, clickDate); // index.js
-            },
-            plugins: {
-                legend: false,
-                tooltip: {
-                    callbacks: {
-                        title() {
-                            return '';
-                        },
-                        label(context) {
-                            const v = context.dataset.data[context.dataIndex];
-                            return [v.v, v.d];
-                        }
-                    }
-                }
-            },
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 x: {
                     type: 'category',
+                    labels: Array.from({length: 53}, (_, i) => i.toString()),
                     offset: true,
-                    reverse: false,
-                    ticks: {
-                        display: false
-                    },
-                    border: {
-                        display: false
-                    },
                     grid: {
                         display: false
                     }
                 },
                 y: {
                     type: 'category',
-                    labels: ['Mo', 'Tu', 'We','Th','Fr','Sa','Su'],
-                    reverse: false,
-                    ticks: {
-                        stepSize: 1,
-                        display: true
-                    },
-                    border: {
+                    labels: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
+                    offset: true,
+                    grid: {
                         display: false
-                    },
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+function makeColorChart(heat, sets) {
+    let ldata = lowerData(heat);
+    var ctx = document.getElementById('color-chart').getContext('2d');
+    
+    window.colorChart = new Chart(ctx, {
+        type: 'matrix',
+        data: {
+            datasets: [{
+                label: 'Color Heatmap',
+                data: ldata,
+                backgroundColor(context) {
+                    const data = context.dataset.data[context.dataIndex];
+                    return data.Color || 'rgba(200, 200, 200, 0.1)'; // Use color from data or light gray for no workout
+                },
+                borderColor(context) {
+                    const alpha = 0.5;
+                    return Chart.helpers.color('grey').alpha(alpha).rgbString();
+                },
+                width: ({ chart }) => (chart.chartArea || {}).width / 52 - 1,
+                height: ({ chart }) => (chart.chartArea || {}).height / 7 - 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    type: 'category',
+                    labels: Array.from({length: 53}, (_, i) => i.toString()),
+                    offset: true,
                     grid: {
                         display: false
                     }
                 },
+                y: {
+                    type: 'category',
+                    labels: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
+                    offset: true,
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
             }
         }
     });
-};
+}

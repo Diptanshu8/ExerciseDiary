@@ -24,27 +24,28 @@ type Conf struct {
 
 // Exercise - one exercise
 type Exercise struct {
-	ID     int             `db:"ID"`
-	Group  string          `db:"GR"`
-	Place  string          `db:"PLACE"`
-	Name   string          `db:"NAME"`
-	Descr  string          `db:"DESCR"`
-	Image  string          `db:"IMAGE"`
-	Color  string          `db:"COLOR"`
-	Weight decimal.Decimal `db:"WEIGHT"`
-	Reps   int             `db:"REPS"`
-	Intensity   int        `db:"INTENSITY"`
+	ID        int             `db:"ID"`
+	Group     string          `db:"GR"`
+	Place     string          `db:"PLACE"`
+	Name      string          `db:"NAME"`
+	Descr     string          `db:"DESCR"`
+	Image     string          `db:"IMAGE"`
+	Color     string          `db:"COLOR"`
+	Weight    decimal.Decimal `db:"WEIGHT"`
+	Reps      int             `db:"REPS"`
+	Intensity int             `db:"INTENSITY"`
 }
 
 // Set - one set
 type Set struct {
-	ID     int             `db:"ID"`
-	Date   string          `db:"DATE"`
-	Name   string          `db:"NAME"`
-	Color  string          `db:"COLOR"`
-	Weight decimal.Decimal `db:"WEIGHT"`
-	Reps   int             `db:"REPS"`
-	Intensity   int        `db:"INTENSITY"`
+	ID           int             `db:"ID" json:"ID"`
+	Date         string          `db:"DATE" json:"Date"`
+	Name         string          `db:"NAME" json:"Name"`
+	Color        string          `db:"COLOR" json:"Color"`
+	WorkoutColor string          `db:"WORKOUT_COLOR" json:"WorkoutColor"`
+	Weight       decimal.Decimal `db:"WEIGHT" json:"Weight"`
+	Reps         int             `db:"REPS" json:"Reps"`
+	Intensity    int             `db:"INTENSITY" json:"Intensity"`
 }
 
 // AllExData - all sets and exercises
@@ -56,10 +57,11 @@ type AllExData struct {
 
 // HeatMapData - data for HeatMap
 type HeatMapData struct {
-	X string
-	Y string
-	D string
-	V int
+	X     string
+	Y     string
+	D     string
+	V     int
+	Color string
 }
 
 // BodyWeight - store weight
@@ -71,12 +73,13 @@ type BodyWeight struct {
 
 // GuiData - web gui data
 type GuiData struct {
-	Config   Conf
-	Themes   []string
-	ExData   AllExData
-	GroupMap map[string]string
-	OneEx    Exercise
-	HeatMap  []HeatMapData
-	Version  string
-	Auth     auth.Conf
+	Config           Conf
+	Themes           []string
+	ExData           AllExData
+	GroupMap         map[string]string
+	OneEx            Exercise
+	IntensityHeatMap []HeatMapData
+	ColorHeatMap     []HeatMapData
+	Version          string
+	Auth             auth.Conf
 }
