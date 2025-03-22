@@ -72,7 +72,7 @@
           <div class="d-flex justify-content-evenly">
             <div class="col-md-10">
               <div class="chart-container" style="max-width: fit-content">
-                <canvas id="weight-chart" style="max-height: 230px;"></canvas>
+                <canvas id="weight-chart" style="height: 100px;"></canvas>
               </div>
             </div>
             <div class="col-md-2">
@@ -193,6 +193,26 @@
               </div>
             </div>
           </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Color Legend -->
+  <div class="row">
+    <div class="col-md-12 mb-4">
+      <div class="card border-primary">
+        <div class="card-header">Exercise Color Legend</div>
+        <div class="card-body">
+          <div class="row">
+            {{ range .ExData.Exs }}
+            <div class="col-md-3 mb-2">
+              <div class="d-flex align-items-center">
+                <div style="width: 20px; height: 20px; background-color: {{ .Color }}; margin-right: 10px; border-radius: 4px;"></div>
+                <span>{{ .Name }}</span>
+              </div>
+            </div>
+            {{ end }}
+          </div>
         </div>
       </div>
     </div>
