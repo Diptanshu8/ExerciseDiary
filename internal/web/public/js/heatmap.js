@@ -4,9 +4,12 @@ function lowerData(heat) {
     let arrayLength = heat.length;
     for (let i = 0 ; i < arrayLength; i++) {
         let val = heat[i];
-        // Ensure Colors and WorkoutNames are properly initialized
+        // Ensure arrays are properly initialized
         const colors = val.Colors || [];
         const workoutNames = val.WorkoutNames || [];
+        const workoutIntensities = val.WorkoutIntensities || [];
+        const workoutWeights = val.WorkoutWeights || [];
+        const workoutReps = val.WorkoutReps || [];
         
         ldata.push({
             x: val.X,
@@ -15,7 +18,10 @@ function lowerData(heat) {
             v: val.V,
             Color: val.Color || '',
             Colors: colors,
-            WorkoutNames: workoutNames
+            WorkoutNames: workoutNames,
+            WorkoutIntensities: workoutIntensities,
+            WorkoutWeights: workoutWeights,
+            WorkoutReps: workoutReps
         });
     }
     // console.log('LDATA =', ldata);
@@ -24,6 +30,18 @@ function lowerData(heat) {
 
 function makeIntensityChart(heat, hcolor, sets) {
     let ldata = lowerData(heat);
+    
+    // Create a map of dates to number of workouts
+    const workoutCountByDate = {};
+    if (sets && sets.length > 0) {
+        sets.forEach(set => {
+            if (!workoutCountByDate[set.Date]) {
+                workoutCountByDate[set.Date] = 0;
+            }
+            workoutCountByDate[set.Date]++;
+        });
+    }
+    
     var ctx = document.getElementById('intensity-chart').getContext('2d');
     window.intensityChart = new Chart(ctx, {
         type: 'matrix',
@@ -69,6 +87,57 @@ function makeIntensityChart(heat, hcolor, sets) {
             plugins: {
                 legend: {
                     display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const data = tooltipItems[0].raw;
+                            // Format date to show day of week
+                            const dateObj = new Date(data.d);
+                            const dayOfWeek = dateObj.toLocaleDateString(undefined, { weekday: 'long' });
+                            return `${dayOfWeek}, ${data.d}`;
+                        },
+                        label: function(tooltipItem) {
+                            const data = tooltipItem.raw;
+                            const intensity = data.v;
+                            // If intensity is 0, no workouts
+                            if (intensity === 0) {
+                                return 'No workouts on this day';
+                            }
+                            
+                            // Check how many workouts were done on this day
+                            const workoutCount = workoutCountByDate[data.d] || 0;
+                            if (workoutCount > 1) {
+                                return `Total intensity: ${intensity} (from ${workoutCount} workouts)`;
+                            }
+                            
+                            // The backend adds 1 to the intensity, so we need to adjust
+                            return `Workout intensity: ${intensity}`;
+                        },
+                        afterLabel: function(tooltipItem) {
+                            const data = tooltipItem.raw;
+                            const intensity = data.v;
+                            
+                            // No additional information for days without workouts
+                            if (intensity === 0) {
+                                return '';
+                            }
+                            
+                            // Describe the intensity level based on the adjusted value
+                            // Note: backend adds 1 to each workout's intensity, so scale accordingly
+                            if (intensity === 1) {
+                                return 'Single workout with minimal intensity';
+                            } else if (intensity < 4) {
+                                return 'Light workout day';
+                            } else if (intensity < 7) {
+                                return 'Moderate workout day';
+                            } else if (intensity < 10) {
+                                return 'Intense workout day';
+                            } else {
+                                return 'Very intense or multiple workouts';
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -174,7 +243,11 @@ function makeColorChart(heat, sets) {
                 tooltip: {
                     callbacks: {
                         title: function(tooltipItems) {
-                            return tooltipItems[0].raw.d; // Show date as title
+                            const data = tooltipItems[0].raw;
+                            // Format date to show day of week (matching intensity chart format)
+                            const dateObj = new Date(data.d);
+                            const dayOfWeek = dateObj.toLocaleDateString(undefined, { weekday: 'long' });
+                            return `${dayOfWeek}, ${data.d}`;
                         },
                         label: function(tooltipItem) {
                             const data = tooltipItem.raw;
@@ -185,15 +258,9 @@ function makeColorChart(heat, sets) {
                         },
                         afterLabel: function(tooltipItem) {
                             const data = tooltipItem.raw;
-                            // We can't directly add HTML in tooltip callbacks,
-                            // but we can return an array of strings to create multiple lines
-                            if (data.Colors && data.Colors.length > 0) {
-                                const lines = [];
-                                data.Colors.forEach((color, index) => {
-                                    const workoutName = data.WorkoutNames && data.WorkoutNames[index] ? data.WorkoutNames[index] : 'Unknown';
-                                    lines.push(`${workoutName}: ${color}`);
-                                });
-                                return lines;
+                            if (data.Colors && data.Colors.length > 0 && data.WorkoutNames && data.WorkoutNames.length > 0) {
+                                // Create a comma-separated list of all workouts
+                                return data.WorkoutNames.join(', ');
                             }
                             return '';
                         }

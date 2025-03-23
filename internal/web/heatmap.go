@@ -16,8 +16,11 @@ type HeatMapResult struct {
 
 // WorkoutData stores colors and names for workouts on a specific date
 type WorkoutData struct {
-	Colors []string
-	Names  []string
+	Colors      []string
+	Names       []string
+	Intensities []int    // Intensity values for each workout
+	Weights     []string // Weight values for each workout (as strings to preserve decimal format)
+	Reps        []int    // Reps for each workout
 }
 
 func generateHeatMap() HeatMapResult {
@@ -52,12 +55,18 @@ func generateHeatMap() HeatMapResult {
 				heat.V = len(data.Colors)
 				heat.Colors = data.Colors
 				heat.WorkoutNames = data.Names
+				heat.WorkoutIntensities = data.Intensities
+				heat.WorkoutWeights = data.Weights
+				heat.WorkoutReps = data.Reps
 				colorMap = append(colorMap, heat)
 			} else {
 				// Always add the cell to the color map, even without workouts
 				heat.V = 0
 				heat.Colors = []string{}
 				heat.WorkoutNames = []string{}
+				heat.WorkoutIntensities = []int{}
+				heat.WorkoutWeights = []string{}
+				heat.WorkoutReps = []int{}
 				colorMap = append(colorMap, heat)
 			}
 		}
@@ -96,14 +105,20 @@ func getWorkoutData() map[string]WorkoutData {
 		if set.WorkoutColor != "" {
 			if _, exists := workoutMap[date]; !exists {
 				workoutMap[date] = WorkoutData{
-					Colors: []string{},
-					Names:  []string{},
+					Colors:      []string{},
+					Names:       []string{},
+					Intensities: []int{},
+					Weights:     []string{},
+					Reps:        []int{},
 				}
 			}
 
 			data := workoutMap[date]
 			data.Colors = append(data.Colors, set.WorkoutColor)
 			data.Names = append(data.Names, set.Name)
+			data.Intensities = append(data.Intensities, set.Intensity)
+			data.Weights = append(data.Weights, set.Weight.String())
+			data.Reps = append(data.Reps, set.Reps)
 			workoutMap[date] = data
 		}
 	}
