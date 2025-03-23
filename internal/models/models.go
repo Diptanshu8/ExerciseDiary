@@ -57,11 +57,13 @@ type AllExData struct {
 
 // HeatMapData - data for HeatMap
 type HeatMapData struct {
-	X     string
-	Y     string
-	D     string
-	V     int
-	Color string
+	X            string   `json:"X"`
+	Y            string   `json:"Y"`
+	D            string   `json:"D"`
+	V            int      `json:"V"`
+	Color        string   `json:"Color"`
+	Colors       []string `json:"Colors"`
+	WorkoutNames []string `json:"WorkoutNames"` // Names of workouts corresponding to Colors
 }
 
 // BodyWeight - store weight

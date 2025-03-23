@@ -14,6 +14,12 @@ type HeatMapResult struct {
 	ColorMap     []models.HeatMapData
 }
 
+// WorkoutData stores colors and names for workouts on a specific date
+type WorkoutData struct {
+	Colors []string
+	Names  []string
+}
+
 func generateHeatMap() HeatMapResult {
 	var intensityMap []models.HeatMapData
 	var colorMap []models.HeatMapData
@@ -26,7 +32,7 @@ func generateHeatMap() HeatMapResult {
 
 	startDate := weekStartDate(min)
 	countMap := countHeat()
-	workoutColors := getColorMap()
+	workoutData := getWorkoutData()
 
 	dow := []string{"Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"}
 
@@ -41,14 +47,18 @@ func generateHeatMap() HeatMapResult {
 			heat.V = countMap[heat.D]
 			intensityMap = append(intensityMap, heat)
 
-			// Add to color map with the actual workout color
-			if color, exists := workoutColors[heat.D]; exists {
-				heat.V = 1
-				heat.Color = color
+			// Add to color map with all workout colors and names
+			if data, exists := workoutData[heat.D]; exists {
+				heat.V = len(data.Colors)
+				heat.Colors = data.Colors
+				heat.WorkoutNames = data.Names
 				colorMap = append(colorMap, heat)
 			} else {
-				// Skip days without workouts in the color map
-				continue
+				// Always add the cell to the color map, even without workouts
+				heat.V = 0
+				heat.Colors = []string{}
+				heat.WorkoutNames = []string{}
+				colorMap = append(colorMap, heat)
 			}
 		}
 
@@ -78,14 +88,25 @@ func countHeat() map[string]int {
 	return countMap
 }
 
-func getColorMap() map[string]string {
-	colorMap := make(map[string]string)
+func getWorkoutData() map[string]WorkoutData {
+	workoutMap := make(map[string]WorkoutData)
 
 	for _, set := range exData.Sets {
+		date := set.Date
 		if set.WorkoutColor != "" {
-			colorMap[set.Date] = set.WorkoutColor
+			if _, exists := workoutMap[date]; !exists {
+				workoutMap[date] = WorkoutData{
+					Colors: []string{},
+					Names:  []string{},
+				}
+			}
+
+			data := workoutMap[date]
+			data.Colors = append(data.Colors, set.WorkoutColor)
+			data.Names = append(data.Names, set.Name)
+			workoutMap[date] = data
 		}
 	}
 
-	return colorMap
+	return workoutMap
 }
