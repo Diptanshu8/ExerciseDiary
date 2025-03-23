@@ -51,12 +51,24 @@ function makeIntensityChart(heat, hcolor, sets) {
                 data: ldata,
                 backgroundColor(context) {
                     const value = context.dataset.data[context.dataIndex].v;
+                    
+                    // Use the same styling for blank cells as the color heatmap
+                    if (value === 0) {
+                        return 'rgba(200, 200, 200, 0.1)'; // Light gray for no workout
+                    }
+                    
                     const alpha = value / 10;
                     return Chart.helpers.color(hcolor).alpha(alpha).rgbString();
                 },
                 borderColor(context) {
                     const value = context.dataset.data[context.dataIndex].v;
                     const alpha = 0.5;
+                    
+                    // Match the border style with the color heatmap
+                    if (value === 0) {
+                        return 'rgba(200, 200, 200, 0.1)'; // Almost invisible border for no workout
+                    }
+                    
                     return Chart.helpers.color('grey').alpha(alpha).rgbString();
                 },
                 width: ({ chart }) => (chart.chartArea || {}).width / 52 - 1,
