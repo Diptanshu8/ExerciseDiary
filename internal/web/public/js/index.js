@@ -25,9 +25,20 @@ function addExercise(name, weight, reps, intensity, color) {
 
 function setFormContent(sets, date) {
     window.sessionStorage.setItem("today", date);
+    today = date;
     document.getElementById('todayEx').innerHTML = "";
     document.getElementById("formDate").value = date;
     document.getElementById("realDate").value = date;
+
+    // Update heatmap highlights
+    if (window.intensityChart) {
+        window.intensityChart.data.datasets[0].selectedDate = date;
+        window.intensityChart.update();
+    }
+    if (window.colorChart) {
+        window.colorChart.data.datasets[0].selectedDate = date;
+        window.colorChart.update();
+    }
 
     if (sets) {
         let len = sets.length;
@@ -40,23 +51,11 @@ function setFormContent(sets, date) {
 };
 
 function setFormDate(sets) {
-    let date = new Date().toISOString().split('T')[0];
-    if (today) {
-        date = today;
+    let date = window.sessionStorage.getItem("today");
+    if (!date) {
+        date = new Date().toISOString().split('T')[0];
     }
-    window.sessionStorage.setItem("today", date);
-    document.getElementById('todayEx').innerHTML = "";
-    document.getElementById("formDate").value = date;
-    document.getElementById("realDate").value = date;
-
-    if (sets) {
-        let len = sets.length;
-        for (let i = 0 ; i < len; i++) {
-            if (sets[i].Date == date) {
-                addExercise(sets[i].Name, sets[i].Weight, sets[i].Reps, sets[i].Intensity, sets[i].WorkoutColor);
-            }
-        }
-    }
+    setFormContent(sets, date);
 };
 
 function setWeightDate() {

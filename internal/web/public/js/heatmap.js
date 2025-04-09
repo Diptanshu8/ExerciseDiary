@@ -186,8 +186,15 @@ function makeIntensityChart(heat, hcolor, sets) {
             datasets: [{
                 label: 'Intensity Heatmap',
                 data: ldata,
+                selectedDate: null, // Add tracking for selected date
                 backgroundColor(context) {
                     const value = context.dataset.data[context.dataIndex].v;
+                    const date = context.dataset.data[context.dataIndex].d;
+                    
+                    // Highlight selected date
+                    if (date === this.selectedDate) {
+                        return 'rgba(255, 255, 0, 0.5)'; // Yellow highlight
+                    }
                     
                     if (value === 0) {
                         return 'rgba(200, 200, 200, 0.1)';
@@ -198,7 +205,8 @@ function makeIntensityChart(heat, hcolor, sets) {
                 },
                 borderColor(context) {
                     const value = context.dataset.data[context.dataIndex].v;
-                    const alpha = 0.5;
+                    const date = context.dataset.data[context.dataIndex].d;
+                    const alpha = date === this.selectedDate ? 1 : 0.5;
                     
                     if (value === 0) {
                         return 'rgba(200, 200, 200, 0.1)';
@@ -215,6 +223,23 @@ function makeIntensityChart(heat, hcolor, sets) {
             maintainAspectRatio: false,
             animation: {
                 duration: 10
+            },
+            onClick: function(event, elements) {
+                if (elements && elements.length > 0) {
+                    const clickedElement = elements[0];
+                    const date = this.data.datasets[0].data[clickedElement.index].d;
+                    
+                    // Update selected date for both charts
+                    this.data.datasets[0].selectedDate = date;
+                    if (window.colorChart) {
+                        window.colorChart.data.datasets[0].selectedDate = date;
+                        window.colorChart.update();
+                    }
+                    this.update();
+                    
+                    // Update the workout section
+                    setFormContent(sets, date);
+                }
             },
             plugins: {
                 legend: {
@@ -262,40 +287,22 @@ function makeIntensityChart(heat, hcolor, sets) {
 function makeColorChart(heat, sets) {
     let ldata = lowerData(heat);
     var ctx = document.getElementById('color-chart').getContext('2d');
-    
-    // Helper function to draw gradient for an element
-    function drawGradientForElement(chart, element, colors) {
-        const ctx = chart.ctx;
-        const gradient = ctx.createLinearGradient(
-            element.x, 
-            element.y, 
-            element.x + element.width, 
-            element.y
-        );
-        
-        const step = 1.0 / colors.length;
-        colors.forEach((color, colorIndex) => {
-            gradient.addColorStop(colorIndex * step, color);
-            gradient.addColorStop((colorIndex + 1) * step, color);
-        });
-        
-        ctx.save();
-        ctx.fillStyle = gradient;
-        ctx.fillRect(element.x, element.y, element.width, element.height);
-        ctx.restore();
-    }
-
-    // Keep track of last hovered element
-    let lastHoveredIndex = null;
-    
     window.colorChart = new Chart(ctx, {
         type: 'matrix',
         data: {
             datasets: [{
                 label: 'Color Heatmap',
                 data: ldata,
+                selectedDate: null,
                 backgroundColor(context) {
                     const data = context.dataset.data[context.dataIndex];
+                    const date = data.d;
+                    
+                    // Highlight selected date
+                    if (date === this.selectedDate) {
+                        return 'rgba(255, 255, 0, 0.5)'; // Yellow highlight
+                    }
+                    
                     if (!data || !data.Colors || data.Colors.length === 0) {
                         return 'rgba(200, 200, 200, 0.1)';
                     }
@@ -309,7 +316,14 @@ function makeColorChart(heat, sets) {
                     return 'rgba(0, 0, 0, 0)';
                 },
                 borderColor(context) {
-                    const alpha = 0.5;
+                    const data = context.dataset.data[context.dataIndex];
+                    const date = data.d;
+                    const alpha = date === this.selectedDate ? 1 : 0.5;
+                    
+                    if (!data || !data.Colors || data.Colors.length === 0) {
+                        return 'rgba(200, 200, 200, 0.1)';
+                    }
+                    
                     return Chart.helpers.color('grey').alpha(alpha).rgbString();
                 },
                 width: ({ chart }) => (chart.chartArea || {}).width / 52 - 1,
@@ -321,6 +335,23 @@ function makeColorChart(heat, sets) {
             maintainAspectRatio: false,
             animation: {
                 duration: 10
+            },
+            onClick: function(event, elements) {
+                if (elements && elements.length > 0) {
+                    const clickedElement = elements[0];
+                    const date = this.data.datasets[0].data[clickedElement.index].d;
+                    
+                    // Update selected date for both charts
+                    this.data.datasets[0].selectedDate = date;
+                    if (window.intensityChart) {
+                        window.intensityChart.data.datasets[0].selectedDate = date;
+                        window.intensityChart.update();
+                    }
+                    this.update();
+                    
+                    // Update the workout section
+                    setFormContent(sets, date);
+                }
             },
             plugins: {
                 legend: {
@@ -371,7 +402,24 @@ function makeColorChart(heat, sets) {
                 meta.data.forEach((element, index) => {
                     const data = dataset.data[index];
                     if (data.Colors && data.Colors.length > 1) {
-                        drawGradientForElement(chart, element, data.Colors);
+                        const ctx = chart.ctx;
+                        const gradient = ctx.createLinearGradient(
+                            element.x, 
+                            element.y, 
+                            element.x + element.width, 
+                            element.y
+                        );
+                        
+                        const step = 1.0 / data.Colors.length;
+                        data.Colors.forEach((color, colorIndex) => {
+                            gradient.addColorStop(colorIndex * step, color);
+                            gradient.addColorStop((colorIndex + 1) * step, color);
+                        });
+                        
+                        ctx.save();
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(element.x, element.y, element.width, element.height);
+                        ctx.restore();
                     }
                 });
             }

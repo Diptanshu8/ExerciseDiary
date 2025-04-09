@@ -164,7 +164,7 @@
               <button onclick='moveDayLeftRight(-1, {{ .ExData.Sets }})' class="btn del-set-button">
                 <i class="bi bi-arrow-left-square"></i>
               </button>
-              <input type="date" class="m-auto form-control" onchange='setFormDate({{ .ExData.Sets }})' id="realDate" style="width: 70%;">
+              <input type="date" class="m-auto form-control" onchange='setFormContent({{ .ExData.Sets }}, this.value)' id="realDate" style="width: 70%;">
               <button onclick='moveDayLeftRight(1, {{ .ExData.Sets }})' class="btn del-set-button">
                 <i class="bi bi-arrow-right-square"></i>
               </button>
