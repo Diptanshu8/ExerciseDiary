@@ -16,7 +16,6 @@ function splitWeight(weight, show) {
 
 function weightChart(id, dates, ws, wcolor, xticks) {
     const ctx = document.getElementById(id);
-    const trendData = calculateTrendLine(dates, ws);
 
     if (wChart) {
         wChart.clear();
@@ -27,85 +26,40 @@ function weightChart(id, dates, ws, wcolor, xticks) {
         type: 'line',
         data: {
             labels: dates,
-            datasets: [
-                {
-                    type: 'line',
-                    label: 'Weight',
-                    data: ws,
-                    borderColor: wcolor,
-                    backgroundColor: wcolor + '20',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.1,
-                    order: 2
-                },
-                {
-                    type: 'line',
-                    label: 'Trend',
-                    data: trendData,
-                    borderColor: '#FF6384',
-                    borderWidth: 2,
-                    pointRadius: 0,
-                    fill: false,
-                    tension: 0.4,
-                    order: 1
-                }
-            ]
+            datasets: [{
+                type: 'line',
+                label: 'Weight',
+                data: ws,
+                borderColor: wcolor,
+                backgroundColor: wcolor + '20',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.1
+            }]
         },
         options: {
             responsive: true,
             scales: {
                 x: {
-                    ticks: {
-                        display: xticks
+                    display: xticks,
+                    grid: {
+                        display: false
                     }
                 },
                 y: {
-                    beginAtZero: false
+                    beginAtZero: false,
+                    grid: {
+                        display: false
+                    }
                 }
             },
             plugins: {
                 legend: {
                     display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            if (context.datasetIndex === 0) {
-                                return `Weight: ${context.raw}`;
-                            } else {
-                                return `Trend: ${context.raw.toFixed(1)}`;
-                            }
-                        }
-                    }
                 }
             }
         }
     });
-}
-
-function calculateTrendLine(dates, values) {
-    const xPoints = dates.map((d, i) => i);
-    const n = dates.length;
-    
-    // Calculate means
-    const meanX = xPoints.reduce((a, b) => a + b, 0) / n;
-    const meanY = values.reduce((a, b) => a + b, 0) / n;
-    
-    // Calculate slope and intercept
-    let numerator = 0;
-    let denominator = 0;
-    
-    for (let i = 0; i < n; i++) {
-        numerator += (xPoints[i] - meanX) * (values[i] - meanY);
-        denominator += Math.pow(xPoints[i] - meanX, 2);
-    }
-    
-    const slope = denominator !== 0 ? numerator / denominator : 0;
-    const intercept = meanY - slope * meanX;
-    
-    // Generate trend line points
-    return xPoints.map(x => slope * x + intercept);
 }
 
 function generateWeightChart(weight, wcolor, show) {

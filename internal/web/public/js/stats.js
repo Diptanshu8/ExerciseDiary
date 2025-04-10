@@ -3,8 +3,8 @@ var sOffset = 0;
 var distributionChart = null;
 var currentPeriod = 'weekly';
 
-function addSet(i, date, reps, weight) {
-    html_code = '<tr><td style="opacity: 45%;">'+i+'.</td><td>'+date+'</td><td>'+reps+'</td><td>'+weight+'</td></tr>';
+function addSet(i, date, intensity) {
+    html_code = '<tr><td style="opacity: 45%;">'+i+'.</td><td>'+date+'</td><td>'+intensity+'</td></tr>';
     document.getElementById('stats-table').insertAdjacentHTML('beforeend', html_code);
 }
 
@@ -106,10 +106,24 @@ function toggleSummaryPeriod(period) {
         const setDate = new Date(set.Date);
         return setDate >= periodStart && setDate <= now;
     });
+
+    // Get selected exercise
+    const selectedEx = document.getElementById("ex-value").value;
+    const exerciseSets = periodSets.filter(set => set.Name === selectedEx);
     
-    // Update summary stats and distribution chart
+    // Extract dates, intensity and weights for the selected exercise
+    const dates = exerciseSets.map(set => set.Date);
+    const intensity = exerciseSets.map(set => set.Intensity);
+    const weights = exerciseSets.map(set => set.Weight);
+    
+    // Get the heatmap color from the config
+    const hcolor = document.querySelector('input[name="heatcolor"]')?.value || '#03a70c';
+    
+    // Update all charts and stats with period-filtered data
     updateSummaryDisplay(periodSets, period);
     updateExerciseDistribution(periodSets, window.exercises);
+    updateIntensityChart('stats-intensity', dates, intensity, hcolor);
+    weightChart('stats-weight', dates, weights, hcolor, true);
 }
 
 function calculateExerciseDistribution(sets) {
@@ -183,44 +197,35 @@ function updateExerciseDistribution(sets, exercises) {
     });
 }
 
-function calculateTrendLine(dates, values) {
-    const xPoints = dates.map((d, i) => i);
-    const n = dates.length;
-    
-    // Calculate means
-    const meanX = xPoints.reduce((a, b) => a + b, 0) / n;
-    const meanY = values.reduce((a, b) => a + b, 0) / n;
-    
-    // Calculate slope and intercept
-    let numerator = 0;
-    let denominator = 0;
-    
-    for (let i = 0; i < n; i++) {
-        numerator += (xPoints[i] - meanX) * (values[i] - meanY);
-        denominator += Math.pow(xPoints[i] - meanX, 2);
-    }
-    
-    const slope = denominator !== 0 ? numerator / denominator : 0;
-    const intercept = meanY - slope * meanX;
-    
-    // Generate trend line points
-    return xPoints.map(x => slope * x + intercept);
-}
-
 function setStatsPage(sets, hcolor, off, step) {
     // Store sets globally for summary updates
     window.currentSets = sets;
     
-    // Always update summary first with weekly period
-    updateSummaryDisplay(sets, currentPeriod || 'weekly');
+    // Filter data for current period on initial load and updates
+    const now = new Date();
+    const periodStart = new Date(now);
+    
+    if (currentPeriod === 'weekly') {
+        periodStart.setDate(now.getDate() - 7);
+    } else if (currentPeriod === 'monthly') {
+        periodStart.setMonth(now.getMonth() - 1);
+    } else if (currentPeriod === 'annual') {
+        periodStart.setFullYear(now.getFullYear() - 1);
+    }
+
+    // Filter sets within the period
+    const periodSets = sets.filter(set => {
+        const setDate = new Date(set.Date);
+        return setDate >= periodStart && setDate <= now;
+    });
     
     let start = 0, end = 0;
-    let dates = [], ws = [], reps = [], exs = []; 
+    let dates = [], intensity = [], ws = [], exs = []; 
 
     let ex = document.getElementById("ex-value").value;
-    for (let i = 0; i < sets.length; i++) {
-        if (sets[i].Name === ex) {
-            exs.push(sets[i]);
+    for (let i = 0; i < periodSets.length; i++) {
+        if (periodSets[i].Name === ex) {
+            exs.push(periodSets[i]);
         }
     }
 
@@ -247,21 +252,74 @@ function setStatsPage(sets, hcolor, off, step) {
     document.getElementById('stats-table').innerHTML = "";
 
     for (let i = start ; i < end; i++) {
-        addSet(i+1, exs[i].Date, exs[i].Reps, exs[i].Weight);
+        addSet(i+1, exs[i].Date, exs[i].Intensity);
         dates.push(exs[i].Date);
-        reps.push(exs[i].Reps);
+        intensity.push(exs[i].Intensity);
         ws.push(exs[i].Weight);
     }
 
-    // Update all charts
-    statsChart('stats-reps', dates, reps, hcolor, true);
+    // Update all charts with period-filtered data
+    updateSummaryDisplay(periodSets, currentPeriod);
+    updateIntensityChart('stats-intensity', dates, intensity, hcolor);
     weightChart('stats-weight', dates, ws, hcolor, true);
-    updateExerciseDistribution(sets, window.exercises);
+    updateExerciseDistribution(periodSets, window.exercises);
+}
+
+function updateIntensityChart(id, dates, intensity, color) {
+    const ctx = document.getElementById(id);
+    
+    if (window.intensityChart) {
+        window.intensityChart.destroy();
+    }
+
+    window.intensityChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: dates,
+            datasets: [{
+                data: intensity,
+                backgroundColor: color + '80', // Semi-transparent
+                borderColor: color,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 10, // Since intensity is typically 1-10
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        stepSize: 1
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Intensity: ${context.raw}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
 }
 
 function statsChart(id, dates, ws, wcolor, xticks) {
     const ctx = document.getElementById(id);
-    const trendData = calculateTrendLine(dates, ws);
 
     if (sChart) {
         sChart.clear();
@@ -272,54 +330,31 @@ function statsChart(id, dates, ws, wcolor, xticks) {
         type: 'bar',
         data: {
             labels: dates,
-            datasets: [
-                {
-                    type: 'bar',
-                    label: 'Value',
-                    data: ws,
-                    borderColor: wcolor,
-                    backgroundColor: wcolor + '80', // Add transparency
-                    borderWidth: 1,
-                    order: 2
-                },
-                {
-                    type: 'line',
-                    label: 'Trend',
-                    data: trendData,
-                    borderColor: '#FF6384',
-                    borderWidth: 2,
-                    pointRadius: 0,
-                    fill: false,
-                    tension: 0.4,
-                    order: 1
-                }
-            ]
+            datasets: [{
+                data: ws,
+                borderColor: wcolor,
+                backgroundColor: wcolor + '80', // Add transparency
+                borderWidth: 1
+            }]
         },
         options: {
             responsive: true,
-            scales: {
-                x: {
-                    ticks: {
-                        display: xticks
-                    }
-                },
-                y: {
-                    beginAtZero: false
-                }
-            },
             plugins: {
                 legend: {
                     display: false
+                }
+            },
+            scales: {
+                x: {
+                    display: xticks,
+                    grid: {
+                        display: false
+                    }
                 },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            if (context.datasetIndex === 0) {
-                                return `Value: ${context.raw}`;
-                            } else {
-                                return `Trend: ${context.raw.toFixed(1)}`;
-                            }
-                        }
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        display: false
                     }
                 }
             }
