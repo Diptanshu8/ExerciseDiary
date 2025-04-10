@@ -1,6 +1,8 @@
 package web
 
 import (
+	"encoding/json"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -41,7 +43,19 @@ func Gui(dirPath, nodePath string) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
-	templ := template.Must(template.New("").ParseFS(templFS, "templates/*"))
+	// Create template with functions
+	templ := template.New("").Funcs(template.FuncMap{
+		"json": func(v interface{}) template.JS {
+			j, _ := json.Marshal(v)
+			return template.JS(j)
+		},
+		"safeJS": func(s interface{}) template.JS {
+			return template.JS(fmt.Sprint(s))
+		},
+	})
+
+	// Parse templates
+	templ = template.Must(templ.ParseFS(templFS, "templates/*"))
 	router.SetHTMLTemplate(templ) // templates
 
 	router.StaticFS("/fs/", http.FS(pubFS)) // public

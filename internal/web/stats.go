@@ -14,6 +14,7 @@ import (
 func statsHandler(c *gin.Context) {
 	var guiData models.GuiData
 
+	guiData.ExData.Exs = db.SelectEx(appConfig.DBPath)
 	guiData.ExData.Sets = db.SelectSet(appConfig.DBPath)
 	guiData.Config = appConfig
 
