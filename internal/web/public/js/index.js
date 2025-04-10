@@ -3,24 +3,36 @@ var today = null;
 
 function addExercise(name, weight, reps, intensity, color) {
     id = id + 1;
-    html_to_insert=`<tr id="${id}">
-    <td>
-        <input name="name" type="text" class="form-control" value="${name}">
-    </td><td>
-        <input name="weight" type="number" step="any" min="0" class="form-control" value="${weight}">
-    </td><td>
-        <input name="reps" type="number" min="0" class="form-control" value="${reps}">
-    </td><td>
-        <input name="intensity" type="number" min="0" class="form-control" value="${intensity}">
-    </td><td>
-        <input name="workout_color" type="color" class="form-control form-control-color" value="${color || '#03a70c'}">
-    </td><td>
-        <button class="btn del-set-button" type="button" title="Delete" onclick="delExercise(${id})">
-            <i class="bi bi-x-square"></i>
+    var table = document.getElementById("todayEx");
+    var row = table.insertRow(-1);
+    
+    // Name cell
+    var cell1 = row.insertCell(0);
+    cell1.innerHTML = `
+        <input type="text" class="form-control" name="name" value="${name}" readonly>
+        <input type="hidden" name="weight" value="0">
+        <input type="hidden" name="reps" value="0">
+    `;
+    
+    // Intensity cell
+    var cell2 = row.insertCell(1);
+    cell2.innerHTML = `
+        <input type="number" class="form-control" name="intensity" value="${intensity}" min="0" max="10">
+    `;
+    
+    // Color cell
+    var cell3 = row.insertCell(2);
+    cell3.innerHTML = `
+        <input type="color" class="form-control form-control-color" name="workout_color" value="${color}">
+    `;
+    
+    // Delete button cell
+    var cell4 = row.insertCell(3);
+    cell4.innerHTML = `
+        <button class="btn del-set-button" onclick="this.parentElement.parentElement.remove();">
+            <i class="bi bi-trash"></i>
         </button>
-    </td></tr>`;
-
-    document.getElementById('todayEx').insertAdjacentHTML('beforeend', html_to_insert);
+    `;
 };
 
 function setFormContent(sets, date) {

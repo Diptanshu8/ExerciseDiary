@@ -40,123 +40,124 @@
 <!-- End Modal -->
 <div class="container-lg mt-4">
   <div class="row">
-    <div class="col-md-8 mb-4">
+    <!-- Left column in landscape mode, full width in portrait -->
+    <div class="col-12 col-lg-8 mb-4">
       <!-- Intensity Heatmap -->
       <div class="card border-primary mb-4">
         <div class="card-header">Workout Intensity</div>
         <div class="card-body">
           <div class="horiz-scroll">
-              <div style="height: 100px; width: 770px;">
+              <div style="height: 120px; width: 900px;">
                   <canvas id="intensity-chart" style="height: 100%; width: 100%;"></canvas>
               </div>
           </div>
         </div>
       </div>
       <!-- Color Heatmap -->
-      <div class="card border-primary">
+      <div class="card border-primary mb-4">
         <div class="card-header">Workout Colors</div>
         <div class="card-body">
           <div class="horiz-scroll">
-              <div style="height: 100px; width: 770px;">
+              <div style="height: 120px; width: 900px;">
                   <canvas id="color-chart" style="height: 100%; width: 100%;"></canvas>
               </div>
           </div>
         </div>
       </div>
-    </div>
-    <!-- Weight Chart -->
-    <div class="col-md-4 mb-4">
-      <div class="card border-primary">
-        <div class="card-header">Weight Tracking</div>
-        <div class="card-body" style="overflow-x: scroll;">
-          <div class="d-flex justify-content-evenly">
-            <div class="col-md-10">
-              <div class="chart-container" style="max-width: fit-content">
-                <canvas id="weight-chart" style="height: 100px;"></canvas>
+      <!-- Color Legend -->
+      <div class="card border-primary mb-4">
+        <div class="card-header">Exercise Color Legend</div>
+        <div class="card-body">
+          <div class="row">
+            {{ range .ExData.Exs }}
+            <div class="col-md-4 mb-2">
+              <div class="d-flex align-items-center">
+                <div style="width: 24px; height: 24px; background-color: {{ .Color }}; margin-right: 12px; border-radius: 4px;"></div>
+                <span class="text-nowrap">{{ .Name }}</span>
               </div>
             </div>
-            <div class="col-md-2">
-              <button class="btn del-set-button" title="Add weight" data-bs-toggle="modal" data-bs-target="#mWeight" onclick='setWeightDate()'>
-                <h4><i class="bi bi-window-plus"></i></h4>
-              </button>
-            </div>
+            {{ end }}
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="col-md mb-4">
-      <div class="accordion">
-        {{ range $gr, $grID := .GroupMap }}
-        <div class="accordion-item border-primary">
-          <h2 class="accordion-header">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#{{ $grID }}" aria-expanded="false" aria-controls="{{ $grID }}">
-              {{ $gr }}
-            </button>
-          </h2>
-          <div id="{{ $grID }}" class="accordion-collapse collapse">
-            <div class="accordion-body">
-              <div class="row">
-                <div class="col-md-11">
-                  {{ range $.ExData.Exs }}
-                  {{ if eq .Group $gr }}
-                  <div class="hstack gap-2">
-                    <a href="/exercise/?id={{ .ID }}">
-                      <button class="btn del-set-button" title="Edit">
-                        <i class="bi bi-pencil-square"></i>
-                      </button>
-                    </a>
-                    <button class="btn add-exercise-button" title="Show details" data-bs-toggle="modal" data-bs-target="#modal{{ .ID }}">
-                      <i class="bi bi-window-desktop"></i>
-                    </button>
-                    <!-- Modal -->
-                    <div class="modal" id="modal{{ .ID }}">
-                      <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <h5 class="modal-title">{{ .Name }}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                              <span aria-hidden="true"></span>
-                            </button>
-                          </div>
-                          <div class="modal-body">
-                            <div class="col">
-                              <p>Description: {{ .Descr }}</p>
-                              <p>Weight (default): {{ .Weight }}</p>
-                              <p>Reps (default): {{ .Reps }}</p>
-                              <p>Intensity (default): {{ .Intensity }}</p>
-                            </div>
-                            <div class="col">
-                              <img src="{{ .Image }}" style="max-width: 100%;max-height: 100%;" alt="Exercise Image"></img>
+    <!-- Right column in landscape mode, full width in portrait -->
+    <div class="col-12 col-lg-4 mb-4">
+      <!-- Exercise Selection Panel -->
+      <div class="card border-primary mb-4">
+        <div class="card-header">Exercise Selection</div>
+        <div class="card-body p-0">
+          <div class="accordion">
+            {{ range $gr, $grID := .GroupMap }}
+            <div class="accordion-item border-primary">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#{{ $grID }}" aria-expanded="false" aria-controls="{{ $grID }}">
+                  {{ $gr }}
+                </button>
+              </h2>
+              <div id="{{ $grID }}" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                  <div class="row">
+                    <div class="col-md-11">
+                      {{ range $.ExData.Exs }}
+                      {{ if eq .Group $gr }}
+                      <div class="hstack gap-2">
+                        <a href="/exercise/?id={{ .ID }}">
+                          <button class="btn del-set-button" title="Edit">
+                            <i class="bi bi-pencil-square"></i>
+                          </button>
+                        </a>
+                        <button class="btn add-exercise-button" title="Show details" data-bs-toggle="modal" data-bs-target="#modal{{ .ID }}">
+                          <i class="bi bi-window-desktop"></i>
+                        </button>
+                        <!-- Modal -->
+                        <div class="modal" id="modal{{ .ID }}">
+                          <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title">{{ .Name }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true"></span>
+                                </button>
+                              </div>
+                              <div class="modal-body">
+                                <div class="col">
+                                  <p>Description: {{ .Descr }}</p>
+                                  <p>Weight (default): {{ .Weight }}</p>
+                                  <p>Reps (default): {{ .Reps }}</p>
+                                  <p>Intensity (default): {{ .Intensity }}</p>
+                                </div>
+                                <div class="col">
+                                  <img src="{{ .Image }}" style="max-width: 100%;max-height: 100%;" alt="Exercise Image"></img>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
+                        <!-- End Modal -->
+                        <button class="btn exercise-button" onclick='addExercise("{{ .Name }}", "{{ .Weight }}", "{{ .Reps }}", "{{ .Intensity }}", "{{ .Color }}")' title="Weight: {{ .Weight }}; Reps: {{ .Reps }}; Intensity: {{ .Intensity }}">{{ .Name }}</button>
+                        <button class="btn add-exercise-button" onclick='addExercise("{{ .Name }}", "{{ .Weight }}", "{{ .Reps }}", "{{ .Intensity }}", "{{ .Color }}")' title="Add">
+                          <i class="bi bi-arrow-right-square"></i>
+                        </button>
                       </div>
+                      {{ end }}
+                      {{ end }}
                     </div>
-                    <!-- End Modal -->
-                    <button class="btn exercise-button" onclick='addExercise("{{ .Name }}", "{{ .Weight }}", "{{ .Reps }}", "{{ .Intensity }}", "{{ .Color }}")' title="Weight: {{ .Weight }}; Reps: {{ .Reps }}; Intensity: {{ .Intensity }}">{{ .Name }}</button>
-                    <button class="btn add-exercise-button" onclick='addExercise("{{ .Name }}", "{{ .Weight }}", "{{ .Reps }}", "{{ .Intensity }}", "{{ .Color }}")' title="Add">
-                      <i class="bi bi-arrow-right-square"></i>
-                    </button>
+                    <div class="col-md-1">
+                      <button class="btn del-set-button" title="Add group" onclick='addAllGroup({{ $.ExData.Exs }}, {{ $gr }})'>
+                        <i class="bi bi-chevron-compact-right"></i>
+                      </button>
+                    </div>
                   </div>
-                  {{ end }}
-                  {{ end }}
-                </div>
-                <div class="col-md-1">
-                  <button class="btn del-set-button" title="Add group" onclick='addAllGroup({{ $.ExData.Exs }}, {{ $gr }})'>
-                    <i class="bi bi-chevron-compact-right"></i>
-                  </button>
                 </div>
               </div>
             </div>
+            {{ end }}
           </div>
         </div>
-        {{ end }}
       </div>
-    </div>
-    <div class="col-md mb-4">
-      <div class="card border-primary">
+      <!-- Current Workout Panel -->
+      <div class="card border-primary mb-4">
         <div class="card-header">
           <div class="row">
             <div class="col-md-2"></div>
@@ -177,14 +178,14 @@
             <div class="table-responsive">
               <table class="table table-borderless">
                 <thead>
-                  <th class="col-4">Name</th>
-                  <th class="col-2">Weight</th>
-                  <th class="col-2">Reps</th>
-                  <th class="col-2">Intensity</th>
-                  <th class="col-2">Color</th>
+                  <th class="col-9">Name</th>
+                  <th class="col-1">Intensity</th>
+                  <th class="col-1">Color</th>
                   <th class="col-1"></th>
                 </thead>
-                <tbody id="todayEx"></tbody>
+                <tbody id="todayEx">
+                  <!-- Hidden form fields for weight and reps will be added here by JavaScript -->
+                </tbody>
               </table>
             </div>
             <div class="row mt-3">
@@ -195,23 +196,21 @@
           </form>
         </div>
       </div>
-    </div>
-  </div>
-  <!-- Color Legend -->
-  <div class="row">
-    <div class="col-md-12 mb-4">
+      <!-- Weight Chart -->
       <div class="card border-primary">
-        <div class="card-header">Exercise Color Legend</div>
-        <div class="card-body">
-          <div class="row">
-            {{ range .ExData.Exs }}
-            <div class="col-md-3 mb-2">
-              <div class="d-flex align-items-center">
-                <div style="width: 20px; height: 20px; background-color: {{ .Color }}; margin-right: 10px; border-radius: 4px;"></div>
-                <span>{{ .Name }}</span>
+        <div class="card-header">Weight Tracking</div>
+        <div class="card-body" style="overflow-x: scroll;">
+          <div class="d-flex justify-content-evenly">
+            <div class="col-md-10">
+              <div class="chart-container" style="max-width: fit-content">
+                <canvas id="weight-chart" style="height: 100px;"></canvas>
               </div>
             </div>
-            {{ end }}
+            <div class="col-md-2">
+              <button class="btn del-set-button" title="Add weight" data-bs-toggle="modal" data-bs-target="#mWeight" onclick='setWeightDate()'>
+                <h4><i class="bi bi-window-plus"></i></h4>
+              </button>
+            </div>
           </div>
         </div>
       </div>

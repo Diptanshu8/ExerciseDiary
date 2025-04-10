@@ -11,35 +11,19 @@ function createSharedTooltip() {
         const style = document.createElement('style');
         style.textContent = `
             #shared-heatmap-tooltip {
-                background: rgba(0, 0, 0, 0.8);
+                background: rgba(255, 255, 255, 0.95);
+                border: 1px solid rgba(0, 0, 0, 0.1);
                 border-radius: 4px;
-                color: white;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                color: #333;
                 opacity: 0;
-                padding: 10px;
+                padding: 6px 10px;
                 pointer-events: none;
                 position: fixed;
                 transform: translate(-50%, 0);
                 transition: all .1s ease;
                 z-index: 10000;
-                max-width: 300px;
-            }
-            .tooltip-title {
-                font-weight: bold;
-                margin-bottom: 6px;
-                border-bottom: 1px solid rgba(255,255,255,0.3);
-                padding-bottom: 4px;
-            }
-            .tooltip-section {
-                margin-top: 8px;
-            }
-            .tooltip-section-title {
-                font-weight: bold;
-                color: #aaa;
-                font-size: 0.9em;
-            }
-            .tooltip-body {
-                margin-top: 4px;
-                font-size: 14px;
+                font-size: 13px;
             }
         `;
         document.head.appendChild(style);
@@ -61,71 +45,8 @@ function updateSharedTooltip(chart, context, data) {
     const dateObj = new Date(data.d);
     const dayOfWeek = dateObj.toLocaleDateString(undefined, { weekday: 'long' });
     
-    // Get data from both charts for this date
-    const intensityData = window.intensityChart.data.datasets[0].data.find(d => d.d === data.d);
-    const colorData = window.colorChart.data.datasets[0].data.find(d => d.d === data.d);
-    
-    let html = `<div class="tooltip-title">${dayOfWeek}, ${data.d}</div>`;
-
-    if (!intensityData?.v && !colorData?.Colors?.length) {
-        html += '<div class="tooltip-body">No workouts on this day</div>';
-    } else {
-        // Intensity Section
-        if (intensityData) {
-            html += '<div class="tooltip-section">';
-            html += '<div class="tooltip-section-title">Intensity</div>';
-            if (intensityData.v === 0) {
-                html += '<div class="tooltip-body">No workouts</div>';
-            } else {
-                const workoutCount = window.workoutCountByDate?.[data.d] || 0;
-                if (workoutCount > 1) {
-                    html += `<div class="tooltip-body">Total intensity: ${intensityData.v} (from ${workoutCount} workouts)</div>`;
-                } else {
-                    html += `<div class="tooltip-body">Workout intensity: ${intensityData.v}</div>`;
-                }
-                
-                // Add intensity description
-                let intensityDesc = '';
-                if (intensityData.v === 1) {
-                    intensityDesc = 'Single workout with minimal intensity';
-                } else if (intensityData.v < 4) {
-                    intensityDesc = 'Light workout day';
-                } else if (intensityData.v < 7) {
-                    intensityDesc = 'Moderate workout day';
-                } else if (intensityData.v < 10) {
-                    intensityDesc = 'Intense workout day';
-                } else {
-                    intensityDesc = 'Very intense or multiple workouts';
-                }
-                html += `<div class="tooltip-body">${intensityDesc}</div>`;
-            }
-            html += '</div>';
-        }
-
-        // Workouts Section
-        if (colorData?.Colors?.length) {
-            html += '<div class="tooltip-section">';
-            html += '<div class="tooltip-section-title">Workouts</div>';
-            html += `<div class="tooltip-body">${colorData.Colors.length} workout${colorData.Colors.length > 1 ? 's' : ''}</div>`;
-            
-            // List all workouts with their details
-            colorData.WorkoutNames.forEach((name, index) => {
-                const intensity = colorData.WorkoutIntensities[index];
-                const weight = colorData.WorkoutWeights[index];
-                const reps = colorData.WorkoutReps[index];
-                
-                html += '<div class="tooltip-body">';
-                html += `• ${name}`;
-                if (weight !== "0") html += ` (${weight}kg)`;
-                if (reps > 0) html += ` × ${reps}`;
-                if (intensity > 0) html += ` [Intensity: ${intensity}]`;
-                html += '</div>';
-            });
-            html += '</div>';
-        }
-    }
-
-    tooltipEl.innerHTML = html;
+    // Show only the date without any wrapping div
+    tooltipEl.innerHTML = `${dayOfWeek}, ${data.d}`;
 
     // Position the tooltip
     const position = context.chart.canvas.getBoundingClientRect();
@@ -186,7 +107,7 @@ function makeIntensityChart(heat, hcolor, sets) {
             datasets: [{
                 label: 'Intensity Heatmap',
                 data: ldata,
-                selectedDate: null, // Add tracking for selected date
+                selectedDate: null,
                 backgroundColor(context) {
                     const value = context.dataset.data[context.dataIndex].v;
                     const date = context.dataset.data[context.dataIndex].d;
@@ -214,8 +135,8 @@ function makeIntensityChart(heat, hcolor, sets) {
                     
                     return Chart.helpers.color('grey').alpha(alpha).rgbString();
                 },
-                width: ({ chart }) => (chart.chartArea || {}).width / 52 - 1,
-                height: ({ chart }) => (chart.chartArea || {}).height / 7 - 1
+                width: ({ chart }) => (chart.chartArea || {}).width / 53 - 1.5,
+                height: ({ chart }) => (chart.chartArea || {}).height / 7 - 2
             }]
         },
         options: {
@@ -326,8 +247,8 @@ function makeColorChart(heat, sets) {
                     
                     return Chart.helpers.color('grey').alpha(alpha).rgbString();
                 },
-                width: ({ chart }) => (chart.chartArea || {}).width / 52 - 1,
-                height: ({ chart }) => (chart.chartArea || {}).height / 7 - 1
+                width: ({ chart }) => (chart.chartArea || {}).width / 53 - 1.5,
+                height: ({ chart }) => (chart.chartArea || {}).height / 7 - 2
             }]
         },
         options: {
