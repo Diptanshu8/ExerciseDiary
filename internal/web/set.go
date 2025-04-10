@@ -17,6 +17,7 @@ func setHandler(c *gin.Context) {
 	var formData []models.Set
 	var oneSet models.Set
 	var reps int
+	var intensity int
 	var weight decimal.Decimal
 
 	_ = c.PostFormMap("sets")
@@ -24,17 +25,25 @@ func setHandler(c *gin.Context) {
 	formMap := c.Request.PostForm
 	// log.Println("MAP:", formMap)
 
-	len := len(formMap["name"])
-	// log.Println("LEN:", len)
+	formLen := len(formMap["name"])
+	// log.Println("LEN:", formLen)
 	date := formMap["date"][0]
 
-	for i := 0; i < len; i++ {
+	for i := 0; i < formLen; i++ {
 		oneSet.Date = date
 		oneSet.Name = formMap["name"][i]
 		weight, _ = decimal.NewFromString(formMap["weight"][i])
 		reps, _ = strconv.Atoi(formMap["reps"][i])
+		intensity, _ = strconv.Atoi(formMap["intensity"][i])
 		oneSet.Weight = weight
 		oneSet.Reps = reps
+		oneSet.Intensity = intensity
+		// Set default color if not provided
+		if workoutColors, ok := formMap["workout_color"]; ok && i < len(workoutColors) {
+			oneSet.WorkoutColor = workoutColors[i]
+		} else {
+			oneSet.WorkoutColor = "#03a70c" // Default color
+		}
 
 		formData = append(formData, oneSet)
 	}

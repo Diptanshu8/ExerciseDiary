@@ -1,53 +1,73 @@
 var id = 0;
 var today = null;
 
-function addExercise(name, weight, reps) {
-    // console.log('NAME =', name);
-
+function addExercise(name, weight, reps, intensity, color) {
     id = id + 1;
-    html_to_insert=`<tr id="${id}">
-    <td>
-        <input name="name" type="text" class="form-control" value="${name}">
-    </td><td>
-        <input name="weight" type="number" step="any" min="0" class="form-control" value="${weight}">
-    </td><td>
-        <input name="reps" type="number" min="0" class="form-control" value="${reps}">
-    </td><td>
-        <button class="btn del-set-button" type="button" title="Delete" onclick="delExercise(${id})">
-            <i class="bi bi-x-square"></i>
+    var table = document.getElementById("todayEx");
+    var row = table.insertRow(-1);
+    
+    // Name cell
+    var cell1 = row.insertCell(0);
+    cell1.innerHTML = `
+        <input type="text" class="form-control" name="name" value="${name}" readonly>
+        <input type="hidden" name="weight" value="0">
+        <input type="hidden" name="reps" value="0">
+    `;
+    
+    // Intensity cell
+    var cell2 = row.insertCell(1);
+    cell2.innerHTML = `
+        <input type="number" class="form-control" name="intensity" value="${intensity}" min="0" max="10">
+    `;
+    
+    // Color cell
+    var cell3 = row.insertCell(2);
+    cell3.innerHTML = `
+        <input type="color" class="form-control form-control-color" name="workout_color" value="${color}">
+    `;
+    
+    // Delete button cell
+    var cell4 = row.insertCell(3);
+    cell4.innerHTML = `
+        <button class="btn del-set-button" onclick="this.parentElement.parentElement.remove();">
+            <i class="bi bi-trash"></i>
         </button>
-    </td></tr>`;
-
-    document.getElementById('todayEx').insertAdjacentHTML('beforeend', html_to_insert);
+    `;
 };
 
 function setFormContent(sets, date) {
     window.sessionStorage.setItem("today", date);
+    today = date;
     document.getElementById('todayEx').innerHTML = "";
     document.getElementById("formDate").value = date;
     document.getElementById("realDate").value = date;
+
+    // Update heatmap highlights
+    if (window.intensityChart) {
+        window.intensityChart.data.datasets[0].selectedDate = date;
+        window.intensityChart.update();
+    }
+    if (window.colorChart) {
+        window.colorChart.data.datasets[0].selectedDate = date;
+        window.colorChart.update();
+    }
 
     if (sets) {
         let len = sets.length;
         for (let i = 0 ; i < len; i++) {
             if (sets[i].Date == date) {
-                addExercise(sets[i].Name, sets[i].Weight, sets[i].Reps);
+                addExercise(sets[i].Name, sets[i].Weight, sets[i].Reps, sets[i].Intensity, sets[i].WorkoutColor);
             }
         }
     }
 };
 
 function setFormDate(sets) {
-    today = document.getElementById("realDate").value;
-    if (!today) {
-        today = window.sessionStorage.getItem("today");
-
-        if (!today) {
-            today = new Date().toJSON().slice(0, 10);
-        }
+    let date = window.sessionStorage.getItem("today");
+    if (!date) {
+        date = new Date().toISOString().split('T')[0];
     }
-
-    setFormContent(sets, today);
+    setFormContent(sets, date);
 };
 
 function setWeightDate() {
@@ -56,7 +76,6 @@ function setWeightDate() {
 };
 
 function delExercise(exID) {
-
     document.getElementById(exID).remove();
 };
 
@@ -71,21 +90,15 @@ function moveDayLeftRight(where, sets) {
     date.setDate(date.getDate() + parseInt(where));
     let left = date.toLocaleDateString('en-CA');
 
-    // console.log('LEFT =', left);
-
     setFormContent(sets, left);
 };
 
 function addAllGroup(exs, gr) {
-
-    // console.log('GR =', gr);
-    // console.log('SETS =', exs);
-
     if (exs) {
         let len = exs.length;
         for (let i = 0 ; i < len; i++) {
             if (exs[i].Group == gr) {
-                addExercise(exs[i].Name, exs[i].Weight, exs[i].Reps);
+                addExercise(exs[i].Name, exs[i].Weight, exs[i].Reps, exs[i].Intensity);
             }
         }
     }

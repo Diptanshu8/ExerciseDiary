@@ -21,7 +21,10 @@ func indexHandler(c *gin.Context) {
 	guiData.Config = appConfig
 	guiData.ExData = exData
 	guiData.GroupMap = createGroupMap()
-	guiData.HeatMap = generateHeatMap()
+
+	heatmaps := generateHeatMap()
+	guiData.IntensityHeatMap = heatmaps.IntensityMap
+	guiData.ColorHeatMap = heatmaps.ColorMap
 
 	// Sort exercises by Place
 	sort.Slice(guiData.ExData.Exs, func(i, j int) bool {
