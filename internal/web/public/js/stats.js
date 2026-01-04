@@ -1,6 +1,6 @@
 var sChart = null;
 var sOffset = 0;
-var distributionChart = null;
+var distributionCharts = {};
 var currentPeriod = 'weekly';
 
 function addSet(i, date, intensity) {
@@ -149,24 +149,15 @@ function calculateExerciseDistribution(sets) {
     return { labels, data };
 }
 
-function updateExerciseDistribution(sets, exercises) {
-    const { labels, data } = calculateExerciseDistribution(sets);
-    
-    if (distributionChart) {
-        distributionChart.destroy();
+function createPieChart(chartId, labels, data, colors) {
+    const ctx = document.getElementById(chartId);
+    if (!ctx) return;
+
+    if (distributionCharts[chartId]) {
+        distributionCharts[chartId].destroy();
     }
 
-    // Create a map of exercise names to their colors
-    const colorMap = {};
-    exercises.forEach(ex => {
-        colorMap[ex.Name] = ex.Color;
-    });
-    
-    // Get colors for each label in the same order
-    const colors = labels.map(label => colorMap[label] || '#CCCCCC'); // Fallback to gray if color not found
-    
-    const ctx = document.getElementById('exercise-distribution');
-    distributionChart = new Chart(ctx, {
+    distributionCharts[chartId] = new Chart(ctx, {
         type: 'pie',
         data: {
             labels: labels,
@@ -200,6 +191,23 @@ function updateExerciseDistribution(sets, exercises) {
             }
         }
     });
+}
+
+function updateExerciseDistribution(sets, exercises) {
+    const { labels, data } = calculateExerciseDistribution(sets);
+    
+    // Create a map of exercise names to their colors
+    const colorMap = {};
+    exercises.forEach(ex => {
+        colorMap[ex.Name] = ex.Color;
+    });
+    
+    // Get colors for each label in the same order
+    const colors = labels.map(label => colorMap[label] || '#CCCCCC'); // Fallback to gray if color not found
+    
+    // Update both charts if they exist
+    createPieChart('exercise-distribution-desktop', labels, data, colors);
+    createPieChart('exercise-distribution-pwa', labels, data, colors);
 }
 
 function setStatsPage(sets, hcolor, off, step) {

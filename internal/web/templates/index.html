@@ -41,7 +41,7 @@
 <div class="container-lg mt-4">
   <div class="row">
     <!-- Left column in landscape mode, full width in portrait -->
-    <div class="col-12 col-lg-8 mb-4">
+    <div class="col-12 col-lg-8 mb-4 main-left-col">
       <!-- Intensity Heatmap -->
       <div class="card border-primary mb-4">
         <div class="card-header">Workout Intensity</div>
@@ -65,7 +65,7 @@
         </div>
       </div>
       <!-- Color Legend -->
-      <div class="card border-primary mb-4">
+      <div class="card border-primary mb-4 regular-legend">
         <div class="card-header">Exercise Color Legend</div>
         <div class="card-body">
           <div class="row">
@@ -82,7 +82,7 @@
       </div>
     </div>
     <!-- Right column in landscape mode, full width in portrait -->
-    <div class="col-12 col-lg-4 mb-4">
+    <div class="col-12 col-lg-4 mb-4 main-right-col">
       <!-- Exercise Selection Panel -->
       <div class="card border-primary mb-4">
         <div class="card-header">Exercise Selection</div>
@@ -211,6 +211,27 @@
                 <h4><i class="bi bi-window-plus"></i></h4>
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- PWA Bottom Legend -->
+  <div class="row pwa-legend" style="display: none;">
+    <div class="col-12">
+      <div class="card border-primary mb-4">
+        <div class="card-header">Exercise Color Legend</div>
+        <div class="card-body">
+          <div class="row">
+            {{ range .ExData.Exs }}
+            <div class="col-md-4 mb-2">
+              <div class="d-flex align-items-center">
+                <div style="width: 24px; height: 24px; background-color: {{ .Color }}; margin-right: 12px; border-radius: 4px;"></div>
+                <span class="text-nowrap">{{ .Name }}</span>
+              </div>
+            </div>
+            {{ end }}
           </div>
         </div>
       </div>

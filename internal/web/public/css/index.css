@@ -46,3 +46,27 @@
         direction: rtl;
     }
 }
+
+/* PWA Layout Changes */
+@media all and (display-mode: standalone) {
+    /* Home Page Gap Fix */
+    .main-left-col {
+        margin-bottom: 0.5rem !important;
+    }
+
+    /* Stats Page Reorder */
+    .desktop-only {
+        display: none !important;
+    }
+    .pwa-only {
+        display: block !important;
+    }
+
+    /* Existing Legend Logic */
+    .regular-legend {
+        display: none !important;
+    }
+    .pwa-legend {
+        display: block !important;
+    }
+}
