@@ -1,2 +1,13 @@
 # Ignore tmp
 tmp/
+
+# Binaries
+ExerciseDiary
+cmd/ExerciseDiary/ExerciseDiary
+
+# Data
+cmd/ExerciseDiary/temp_data/
+exercise_data/
+
+# Logs
+*.log
